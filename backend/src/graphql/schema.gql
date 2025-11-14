@@ -1,0 +1,53 @@
+type Receipt {
+  filename: String
+  originalName: String
+  mimeType: String
+  size: Int
+  path: String
+}
+
+type Expense {
+  id: ID!
+  amount: Float!
+  description: String!
+  date: String!
+  category: String!
+  paymentMethod: String!
+  location: String
+  notes: String
+  receipt: Receipt
+  createdAt: String!
+  updatedAt: String!
+}
+
+input ReceiptInput {
+  filename: String
+  originalName: String
+  mimeType: String
+  size: Int
+  path: String
+}
+
+input ExpenseInput {
+  amount: Float!
+  description: String!
+  date: String!
+  category: String!
+  paymentMethod: String!
+  location: String
+  notes: String
+  receipt: ReceiptInput
+}
+
+type Query {
+  expenses: [Expense!]!
+  expense(id: ID!): Expense
+  expensesByCategory(category: String!): [Expense!]!
+  expensesByDateRange(startDate: String!, endDate: String!): [Expense!]!
+}
+
+type Mutation {
+  createExpense(input: ExpenseInput!): Expense!
+  updateExpense(id: ID!, input: ExpenseInput!): Expense!
+  deleteExpense(id: ID!): Boolean!
+}

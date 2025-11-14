@@ -20,6 +20,7 @@ import Expense, { IExpense } from '../models/Expense';
 import fs from 'fs';
 import path from 'path';
 import { fileUploadOptions, upload } from '../middleware/upload';
+import { transformDocument, transformDocuments } from '../utils/mongoose.utils';
 
 // DTO (Data Transfer Object) for expense creation/update
 class ExpenseDto {
@@ -62,7 +63,7 @@ export class ExpenseController {
       console.log('Creating expense with data:', data);
       const expense = new Expense(data);
       await expense.save();
-      return expense;
+      return transformDocument(expense.toObject());
     } catch (error) {
       console.error('Error creating expense:', error);
       throw error;
@@ -111,17 +112,17 @@ export class ExpenseController {
 
   @Get()
   async getExpenses() {
-    const expenses = await Expense.find().sort({ date: -1 });
-    return expenses;
+    const expenses = await Expense.find().sort({ date: -1 }).lean();
+    return transformDocuments(expenses);
   }
 
   @Get('/:id')
   async getExpenseById(@Param('id') id: string) {
-    const expense = await Expense.findById(id);
+    const expense = await Expense.findById(id).lean();
     if (!expense) {
       throw new NotFoundError('Expense not found');
     }
-    return expense;
+    return transformDocument(expense);
   }
 
   @Put('/:id')
@@ -151,12 +152,12 @@ export class ExpenseController {
     const expense = await Expense.findByIdAndUpdate(id, expenseData, {
       new: true,
       runValidators: true,
-    });
+    }).lean();
 
     if (!expense) {
       throw new NotFoundError('Expense not found');
     }
-    return expense;
+    return transformDocument(expense);
   }
 
   @Delete('/:id')

@@ -1,0 +1,4 @@
+schema: './backend/src/graphql/schema.gql'
+documents:
+  - 'backend/src/**/*.{gql,ts,tsx}'
+  - 'frontend/src/**/*.{gql,ts,tsx}'

@@ -6,9 +6,10 @@ import { ExpenseController } from './controllers/expenseController';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
-import { upload } from './middleware/upload';
-import Expense from './models/Expense';
-import fs from 'fs';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { typeDefs } from './graphql/schema';
+import { resolvers } from './graphql/resolvers';
 
 dotenv.config();
 
@@ -20,12 +21,25 @@ connectDB();
 
 // Middleware
 app.use(cors());
-// app.use(express.json());
 
 app.use((req, res, next) => {
   console.log('Incoming request:', req.method, req.url);
   next();
 });
+
+// Setup Apollo Server
+const apolloServer = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+// Start Apollo Server
+(async () => {
+  await apolloServer.start();
+
+  // Apply Apollo middleware
+  app.use('/graphql', express.json(), expressMiddleware(apolloServer) as any);
+})();
 
 // Setup routing-controllers
 useExpressServer(app, {
@@ -53,4 +67,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
 });
