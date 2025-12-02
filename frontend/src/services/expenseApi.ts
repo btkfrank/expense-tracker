@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Expense, ExpenseInput } from '../types/expense';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -38,5 +38,13 @@ export const expenseApi = {
   // Delete expense
   delete: async (id: string): Promise<void> => {
     await api.delete(`/expenses/${id}`);
+  },
+
+  // Ask AI question
+  ask: async (question: string): Promise<{ answer: string }> => {
+    const response = await api.post<{ answer: string }>(`/expenses/ask`, {
+      question,
+    });
+    return response.data;
   },
 };

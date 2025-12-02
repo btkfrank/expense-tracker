@@ -14,10 +14,18 @@ export function ExpenseTable() {
   const [isAdding, setIsAdding] = useState(false);
   // const dialogRef = useRef<HTMLDialogElement>(null);
   const [dialogEl, setDialogEl] = useState<HTMLDialogElement | null>(null);
+  const [askDialogEl, setAskDialogEl] = useState<HTMLDialogElement | null>(
+    null
+  );
+  const [question, setQuestion] = useState('');
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<string | null>(null);
 
   // Make dialog draggable
   // useDraggableDialog({ dialogRef });
   useDraggableDialog({ dialog: dialogEl });
+  useDraggableDialog({ dialog: askDialogEl });
 
   useEffect(() => {
     fetchExpenses();
@@ -63,6 +71,13 @@ export function ExpenseTable() {
     dialogEl?.showModal();
   };
 
+  const handleAsk = () => {
+    setQuestion('');
+    setAnswer(null);
+    setAskError(null);
+    askDialogEl?.showModal();
+  };
+
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense);
     setIsAdding(false);
@@ -75,10 +90,23 @@ export function ExpenseTable() {
     setIsAdding(false);
   };
 
+  const handleCloseAskDialog = () => {
+    askDialogEl?.close();
+    setQuestion('');
+    setAnswer(null);
+    setAskError(null);
+  };
+
   const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     // Close dialog if clicking on the backdrop (not the form)
     if (e.target === dialogEl) {
       handleCloseDialog();
+    }
+  };
+
+  const handleAskDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === askDialogEl) {
+      handleCloseAskDialog();
     }
   };
 
@@ -133,6 +161,22 @@ export function ExpenseTable() {
     }
   };
 
+  const handleAskSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+    try {
+      setAskLoading(true);
+      setAskError(null);
+      const res = await expenseApi.ask(question.trim());
+      setAnswer(res.answer);
+    } catch (err) {
+      setAskError('Failed to get answer. Please try again.');
+      console.error('Error asking question:', err);
+    } finally {
+      setAskLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -169,6 +213,9 @@ export function ExpenseTable() {
           <div className="header-buttons">
             <button onClick={handleAdd} className="add-btn">
               Add Expense
+            </button>
+            <button onClick={handleAsk} className="add-btn">
+              Ask Question
             </button>
             <button onClick={fetchExpenses} className="refresh-btn">
               Refresh
@@ -290,6 +337,58 @@ export function ExpenseTable() {
             </div>
           </form>
         </dialog>
+
+        <dialog
+          ref={setAskDialogEl}
+          className="edit-dialog"
+          onClick={handleAskDialogClick}
+        >
+          <form onSubmit={handleAskSubmit} onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3>Ask Question</h3>
+              <button
+                type="button"
+                onClick={handleCloseAskDialog}
+                className="close-btn"
+                aria-label="Close dialog"
+              >
+                ×
+              </button>
+            </div>
+            <div className="dialog-body">
+              <div className="form-group">
+                <label htmlFor="question">Question *</label>
+                <textarea
+                  id="question"
+                  name="question"
+                  rows={3}
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  required
+                />
+              </div>
+              {askError && <div className="error">{askError}</div>}
+              {answer && (
+                <div className="form-group">
+                  <label>Answer</label>
+                  <div className="answer-box">{answer}</div>
+                </div>
+              )}
+            </div>
+            <div className="dialog-footer">
+              <button
+                type="button"
+                onClick={handleCloseAskDialog}
+                className="cancel-btn"
+              >
+                Close
+              </button>
+              <button type="submit" className="save-btn" disabled={askLoading}>
+                {askLoading ? 'Asking...' : 'Ask'}
+              </button>
+            </div>
+          </form>
+        </dialog>
       </div>
     );
   }
@@ -301,6 +400,9 @@ export function ExpenseTable() {
         <div className="header-buttons">
           <button onClick={handleAdd} className="add-btn">
             Add Expense
+          </button>
+          <button onClick={handleAsk} className="add-btn">
+            Ask Question
           </button>
           <button onClick={fetchExpenses} className="refresh-btn">
             Refresh
@@ -489,6 +591,58 @@ export function ExpenseTable() {
                 : updatingId === editingExpense?.id
                 ? 'Saving...'
                 : 'Save'}
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog
+        ref={setAskDialogEl}
+        className="edit-dialog"
+        onClick={handleAskDialogClick}
+      >
+        <form onSubmit={handleAskSubmit} onClick={(e) => e.stopPropagation()}>
+          <div className="dialog-header">
+            <h3>Ask Question</h3>
+            <button
+              type="button"
+              onClick={handleCloseAskDialog}
+              className="close-btn"
+              aria-label="Close dialog"
+            >
+              ×
+            </button>
+          </div>
+          <div className="dialog-body">
+            <div className="form-group">
+              <label htmlFor="question2">Question *</label>
+              <textarea
+                id="question2"
+                name="question"
+                rows={3}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                required
+              />
+            </div>
+            {askError && <div className="error">{askError}</div>}
+            {answer && (
+              <div className="form-group">
+                <label>Answer</label>
+                <div className="answer-box">{answer}</div>
+              </div>
+            )}
+          </div>
+          <div className="dialog-footer">
+            <button
+              type="button"
+              onClick={handleCloseAskDialog}
+              className="cancel-btn"
+            >
+              Close
+            </button>
+            <button type="submit" className="save-btn" disabled={askLoading}>
+              {askLoading ? 'Asking...' : 'Ask'}
             </button>
           </div>
         </form>

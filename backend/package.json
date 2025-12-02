@@ -16,6 +16,7 @@
   "description": "",
   "dependencies": {
     "@apollo/server": "^4.12.1",
+    "@langchain/openai": "^1.1.2",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.97",
@@ -26,8 +27,10 @@
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "^1.0.5",
     "mongoose": "^8.14.2",
     "multer": "^2.0.0",
+    "openai": "^6.9.1",
     "routing-controllers": "^0.11.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3",

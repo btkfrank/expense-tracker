@@ -21,6 +21,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileUploadOptions, upload } from '../middleware/upload';
 import { transformDocument, transformDocuments } from '../utils/mongoose.utils';
+import { askExpenseAgent } from '../services/ai/expenseAgent';
+import { AskQuestionDto } from '../DTO/AskQuestionDto';
 
 // DTO (Data Transfer Object) for expense creation/update
 class ExpenseDto {
@@ -196,5 +198,17 @@ export class ExpenseController {
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
     return res;
+  }
+
+  @Post('/ask')
+  @HttpCode(200)
+  async askAgent(@Body() body: AskQuestionDto) {
+    try {
+      const answer = await askExpenseAgent(body.question);
+      return { answer };
+    } catch (error) {
+      console.error('Error asking expense agent:', error);
+      throw error;
+    }
   }
 }

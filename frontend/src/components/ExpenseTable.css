@@ -289,6 +289,32 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.answer-box {
+  padding: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e1e5ea;
+  border-radius: 6px;
+  color: #333;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow: auto;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
